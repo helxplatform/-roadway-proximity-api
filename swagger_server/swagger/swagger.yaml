@@ -1,11 +1,32 @@
 ---
 swagger: "2.0"
 info:
-  description: "This API, given a decimal formatted latitude and longitude (assumed\
-    \ WGS84), |\nreturns the distance (in meters) to the nearest primary or secondary\
-    \ road\n"
+  description: |
+    # Description
+    This API returns the distance in meters from a location of interest to the nearest road.
+
+    Roadway data comes from GIS shapefiles provided by the US Federal Highway Administration's Highway Performance Monitoring System (HPMS). See the HPMS Field Manual (https://www.fhwa.dot.gov/policyinformation/hpms/fieldmanual/) for detailed explanation of methods and fields.
+
+    Results are limited to to major (or primary) road types, including interstates, principal arteries, minor arteries, and major collectors.
+
+    Locations are expressed using WGS84 decimal format. WGS84 is the World Geodetic System for expressing latitude and longitude.  For example, the Statue of Liberty in New York City is at latitude 40.689249 and longitude -74.044500
+
+    See https://www.fhwa.dot.gov/policyinformation/travel_monitoring/pubs/aadt/ for information on how Average Annual Daily Traffic is computed.
+
+    In addition to distance, the API retrieves additional information including the road type, the maximum speed limit, the annual average daily traffic (AADT), and the total number of lanes for the nearest road.
+    
+    The following road types are supported:
+    * Off-Network
+    * Rural Restricted Access
+    * Rural Unrestricted Access
+    * Urban Restricted Access
+    * Urban Unrestricted Access
+
+    In some cases, road type, AADT, and speed were not available in HPMS.  In this case, data from the TIGER (Topologically Integrated Geographic Encoding and Referencing) from census.gov was used to obtain roadtype. Missing AADT and speeds were populated using a variety of methods. Road segments without roadway type, AADT, or speed were dropped from the dataset.
+
+    The API is currently restricted to 2016.
   version: "1.0.0"
-  title: "Roadway Proximity API"
+  title: "Roadway Exposures API"
   contact:
     name: "Lisa Stillwell"
     email: "lisa@renci.org"
@@ -19,30 +40,27 @@ schemes:
 paths:
   /distance:
     get:
-      summary: "retrieves distance"
-      description: "By passing in the appropriate options, you can get the distance\
-        \ to the closest roadway\n"
+      summary: "retrieves distance in meters"
+      description: "Get the distance to the nearest roadway in meters"
       operationId: "get_distance"
       produces:
       - "application/json"
       parameters:
       - name: "latitude"
         in: "query"
-        description: "latitude of point from which to retrieve the closest distance\
-          \ to a roadway (decimal format - WGS84 assumed)"
+        description: "latitude of the location of interest using decimal format (WGS84 datum)"
         required: true
         type: "number"
         format: "double"
       - name: "longitude"
         in: "query"
-        description: "longitude of point from which to retrieve the closest distance\
-          \ to a roadway (decimal format - WGS84 assumed)"
+        description: "longitude of the location of interest using decimal format (WGS84 datum)"
         required: true
         type: "number"
         format: "double"
       - name: "limit_distance"
         in: "query"
-        description: "limit the search distance - provide number in meters"
+        description: "the maximum search distance between the location of interest and nearest road (meters)"
         required: false
         type: "number"
         default: 500.0
@@ -64,70 +82,53 @@ definitions:
     - "latitude"
     - "longitude"
     - "roadtype"
+    - "route_id"
     - "speed"
     - "through_lanes"
     properties:
-      name:
+      route_id:
         type: "string"
-        example: "Route ID"
+        description: "The Route ID of the nearest roadway as reported to the Highway Performance Monitoring System" 
+        example: "R-VA   SR00106NB"
       roadtype:
         type: "string"
+        description: "The roadway type of the nearest roadway"
         example: "Rural Restricted Access"
       latitude:
         type: "number"
+        description: "latitude provided in the API call"
         format: "double"
         example: 37.2
       longitude:
         type: "number"
+        description: "longitude provided in the API call"
         format: "double"
-        example: -79.334
+        example: -77.334
       distance:
         type: "number"
+        description: "distance from the point of interest to the nearest roadway"
         format: "double"
-        example: 251.000765
+        example: 0.2255368
       aadt:
         type: "number"
+        description: "the Annual Average Daily Traffic on the nearest roadway"
         format: "integer"
-        example: 5060.0
+        example: 7354
       speed:
         type: "number"
+        description: "speed limit of the nearest roadway"
         format: "integer"
-        example: 55.0
+        example: 31
       through_lanes:
         type: "number"
         format: "integer"
-        example: 4.0
+        example: 4
     example:
-      through_lanes: 4.0
-      distance: 251.000765
+      aadt: 7354
+      distance: 0.2255368
       latitude: 37.2
-      name: "Route ID"
-      roadtype: "Rural Restricted Access"
-      aadt: 5060.0
-      speed: 55.0
-      longitude: -79.334
-parameters:
-  latitude:
-    name: "latitude"
-    in: "query"
-    description: "latitude of point from which to retrieve the closest distance to\
-      \ a roadway (decimal format - WGS84 assumed)"
-    required: true
-    type: "number"
-    format: "double"
-  longitude:
-    name: "longitude"
-    in: "query"
-    description: "longitude of point from which to retrieve the closest distance to\
-      \ a roadway (decimal format - WGS84 assumed)"
-    required: true
-    type: "number"
-    format: "double"
-  limit_distance:
-    name: "limit_distance"
-    in: "query"
-    description: "limit the search distance - provide number in meters"
-    required: false
-    type: "number"
-    default: 500.0
-    format: "double"
+      longitude: -77.334
+      roadtype: "Urban Unrestricted Access"
+      route_id: "R-VA   SR00106NB"
+      speed: 31
+      through_lanes: 4
