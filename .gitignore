@@ -45,6 +45,10 @@ coverage.xml
 *,cover
 .hypothesis/
 venv/
+config/database.cfg
+config/database.ini
+swagger_server/ini/connexion.ini
+swagger_server/swagger/swagger2.yaml
 .python-version
 
 # Translations
