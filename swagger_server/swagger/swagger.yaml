@@ -2,29 +2,26 @@
 swagger: "2.0"
 info:
   description: |
-    # Description
-    This API returns the distance in meters from a location of interest to the nearest road.
+    This API returns the distance in meters from a location of interest to the nearest roadway.
 
-    Roadway data comes from GIS shapefiles provided by the US Federal Highway Administration's Highway Performance Monitoring System (HPMS). See the HPMS Field Manual (https://www.fhwa.dot.gov/policyinformation/hpms/fieldmanual/) for detailed explanation of methods and fields.
+    Roadway data are derived from GIS shapefiles provided by the US Federal Highway Administration's Highway Performance Monitoring System (HPMS). See the HPMS Field Manual (https://www.fhwa.dot.gov/policyinformation/hpms/fieldmanual/) for detailed explanation of methods and fields.
 
-    Results are limited to to major (or primary) road types, including interstates, principal arteries, minor arteries, and major collectors.
+    Results are limited to major (or primary) roadway types, including interstates, principal arteries, minor arteries, and major collectors.
 
-    Locations are expressed using WGS84 decimal format. WGS84 is the World Geodetic System for expressing latitude and longitude.  For example, the Statue of Liberty in New York City is at latitude 40.689249 and longitude -74.044500
+    Locations are expressed using WGS84 decimal format. WGS84 is the World Geodetic System for expressing latitude and longitude. For example, Raleigh, North Carolina is at latitude 35.7796 and longitude -78.6382.
 
-    See https://www.fhwa.dot.gov/policyinformation/travel_monitoring/pubs/aadt/ for information on how Average Annual Daily Traffic is computed.
+    In addition to distance, the API retrieves additional information, including the roadway type, the maximum speed limit, the annual average daily traffic (AADT), and the total number of lanes. See https://www.fhwa.dot.gov/policyinformation/travel_monitoring/pubs/aadt/ for information on how AADT is computed.
 
-    In addition to distance, the API retrieves additional information including the road type, the maximum speed limit, the annual average daily traffic (AADT), and the total number of lanes for the nearest road.
-    
-    The following road types are supported:
+    The following roadway types are supported:
     * Off-Network
     * Rural Restricted Access
     * Rural Unrestricted Access
     * Urban Restricted Access
     * Urban Unrestricted Access
 
-    In some cases, road type, AADT, and speed were not available in HPMS.  In this case, data from the TIGER (Topologically Integrated Geographic Encoding and Referencing) from census.gov was used to obtain roadtype. Missing AADT and speeds were populated using a variety of methods. Road segments without roadway type, AADT, or speed were dropped from the dataset.
+    In some cases, roadway type, AADT, and speed are not available in the HPMS data set. In this case, data from the US Census Bureau TIGER (Topologically Integrated Geographic Encoding and Referencing) data set (available at census.gov) was used to obtain roadway type. Roadway segments without roadway type were dropped from the dataset; this amounted to approximately 5% of roadways, many of which had not yet been built. Missing AADT and speeds were populated using a variety of methods. First, a lookup table was built with county averages by roadway type and facility type and populated with values from segments that already had AADT and/or speed. Second, in cases in which the lookup table could not be used (e.g., ramps often didn’t match), speeds were assigned based on the function class of the roadway, state averages, or averages for a similar (but different) roadway type.
 
-    The API is currently restricted to 2016.
+    The API is currently restricted to calendar year 2016.
   version: "1.0.0"
   title: "Roadway Exposures API"
   contact:
@@ -70,8 +67,14 @@ paths:
           description: "search results matching criteria"
           schema:
             $ref: "#/definitions/RoadwayData"
+        204:
+          description: "Input parameters are invalid or nearest roadway is >500 meters from specified latitude/longitude"
         400:
-          description: "bad input parameter"
+          description: "Bad input parameter"
+        404:
+          description: "No values found"
+        500:
+          description: "Server error"
       x-swagger-router-controller: "swagger_server.controllers.default_controller"
 definitions:
   RoadwayData:
@@ -106,7 +109,7 @@ definitions:
         example: -77.334
       distance:
         type: "number"
-        description: "distance from the point of interest to the nearest roadway"
+        description: "distance from the point of interest to the nearest roadway (meters)"
         format: "double"
         example: 0.2255368
       aadt:

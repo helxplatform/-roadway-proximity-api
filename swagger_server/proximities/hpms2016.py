@@ -102,4 +102,7 @@ class Hpms2016Proximity(object):
             break
         session.close()
 
-        return jsonify(data)
+        if (not data):
+            return ('Data response is empty', 204, {'x-error': 'Nearest roadway is >500 meters from specified latitude/longitude.'}) 
+        else:
+            return jsonify(data)
