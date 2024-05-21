@@ -78,7 +78,7 @@ class Hpms2016Proximity(object):
         
         # select fullname, rttyp, st_distancesphere(geom, ST_GeomFromText('POINT(-72.1235 42.3521)', 4269)) as distance from TlRoad where st_dwithin(geom::geography, ST_SetSRID(ST_MakePoint(-72.1235, 42.3521),4269)::geography, 800) order by distance, rttyp;
         #query = "select fullname, rttyp, st_distancesphere(geom, ST_GeomFromText('POINT(" + str(lon) + " " + str(lat) + ")',4269)) as distance from tl_roads where st_dwithin(geom::geography, ST_SetSRID(ST_MakePoint(" + str(lon) + ", " + str(lat) + "),4269)::geography," + str(limit) + ") order by distance, rttyp DESC"
-        query = "select route_id, roadtype, aadt, speed, through_lanes, st_distancesphere(geom, ST_GeomFromText('POINT(" + str(lon) + " " + str(lat) + ")',4269)) as distance from hpms_major_roads_2016  where st_dwithin(geom::geography, ST_SetSRID(ST_MakePoint(" + str(lon) + ", " + str(lat) + "),4269)::geography," + str(limit) + ") order by distance, roadtype DESC"
+        query = "select route_id, roadtype, aadt, speed, through_la, st_distancesphere(geom, ST_GeomFromText('POINT(" + str(lon) + " " + str(lat) + ")',4269)) as distance from hpms_major_roads_2016  where st_dwithin(geom::geography, ST_SetSRID(ST_MakePoint(" + str(lon) + ", " + str(lat) + "),4269)::geography," + str(limit) + ") order by distance, roadtype DESC"
 
         result = session.execute(query)
         #dist_func = func.ST_Distancesphere(TlRoad.geom, func.ST_GeomFromText('POINT(-72.1235 42.3521)', 4269)).label('distance')
