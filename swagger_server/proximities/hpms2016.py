@@ -78,8 +78,10 @@ class Hpms2016Proximity(object):
         
         # select fullname, rttyp, st_distancesphere(geom, ST_GeomFromText('POINT(-72.1235 42.3521)', 4269)) as distance from TlRoad where st_dwithin(geom::geography, ST_SetSRID(ST_MakePoint(-72.1235, 42.3521),4269)::geography, 800) order by distance, rttyp;
         #query = "select fullname, rttyp, st_distancesphere(geom, ST_GeomFromText('POINT(" + str(lon) + " " + str(lat) + ")',4269)) as distance from tl_roads where st_dwithin(geom::geography, ST_SetSRID(ST_MakePoint(" + str(lon) + ", " + str(lat) + "),4269)::geography," + str(limit) + ") order by distance, rttyp DESC"
-        query = "select route_id, roadtype, aadt, speed, through_la, st_distancesphere(geom, ST_GeomFromText('POINT(" + str(lon) + " " + str(lat) + ")',4269)) as distance from hpms_major_roads_2016  where st_dwithin(geom::geography, ST_SetSRID(ST_MakePoint(" + str(lon) + ", " + str(lat) + "),4269)::geography," + str(limit) + ") order by distance, roadtype DESC"
-
+        query = "select route_id, roadtype, aadt, speed, through_la, st_distancesphere(geom, ST_GeomFromText('POINT(" + str(lon) + " " + str(lat) + ")',4269)) as distance, release_year " \
+            "from hpms_major_roads_2016 " \
+            "where st_dwithin(geom::geography, ST_SetSRID(ST_MakePoint(" + str(lon) + ", " + str(lat) + "),4269)::geography," + str(limit) + ") " \
+            "order by distance, roadtype DESC "
         result = session.execute(query)
         #dist_func = func.ST_Distancesphere(TlRoad.geom, func.ST_GeomFromText('POINT(-72.1235 42.3521)', 4269)).label('distance')
         #result = session.query(TlRoad.fullname,
@@ -88,18 +90,22 @@ class Hpms2016Proximity(object):
                         #.filter(func.ST_DWithin(cast(TlRoad.geom, Geography),
                                                 #cast(func.ST_SetSRID(func.ST_MakePoint(-72.1235, 42.3521), 4269), Geography), 800))
                         #.order_by('distance', TlRoad.rttyp)
-
+        
+        # Result set is ordered by closest distance so the first row with an
+        # unseen release year will be the closest road in proximity for that year.
         for query_return_values in result:
-
-            data.update({'route_id': query_return_values[0],
-                         'roadtype': rdTypeDict[query_return_values[1]],
-                         'latitude': kwargs.get('latitude'),
-                         'longitude': kwargs.get('longitude'),
-                         'distance': query_return_values[5],
-                         'aadt':query_return_values[2],
-                         'speed':query_return_values[3],
-                         'through_lanes': query_return_values[4]})
-            break
+            release_year = query_return_values[6]
+            if release_year not in data: data[release_year] = {
+                'route_id': query_return_values[0],
+                'roadtype': rdTypeDict[query_return_values[1]],
+                'latitude': kwargs.get('latitude'),
+                'longitude': kwargs.get('longitude'),
+                'year': release_year,
+                'distance': query_return_values[5],
+                'aadt':query_return_values[2],
+                'speed':query_return_values[3],
+                'through_lanes': query_return_values[4]
+            }
         session.close()
 
         if (not data):
