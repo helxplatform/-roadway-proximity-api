@@ -22,7 +22,7 @@ info:
 
     In some cases, roadway type, AADT, and speed are not available in the HPMS data set. In this case, data from the US Census Bureau TIGER (Topologically Integrated Geographic Encoding and Referencing) data set (available at census.gov) was used to obtain roadway type. Roadway segments without roadway type were dropped from the dataset; this amounted to approximately 5% of roadways, many of which had not yet been built. Missing AADT and speeds were populated using a variety of methods. First, a lookup table was built with county averages by roadway type and facility type and populated with values from segments that already had AADT and/or speed. Second, in cases in which the lookup table could not be used (e.g., ramps often didn’t match), speeds were assigned based on the function class of the roadway, state averages, or averages for a similar (but different) roadway type.
 
-    The API is currently restricted to calendar year 2016.
+    The API is currently restricted to calendar years 2016 and 2017.
   contact:
     name: Lisa Stillwell
     email: lisa@renci.org

@@ -1,6 +1,7 @@
 #import connexion
 #import six
 import sys
+import os
 
 #from swagger_server.models.roadway_data import RoadwayData  # noqa: E501
 from swagger_server.models.models import Hpms2016MajorRoad  # noqa: E501
@@ -14,6 +15,11 @@ from flask import jsonify
 
 parser = ConfigParser()
 parser.read('swagger_server/ini/connexion.ini')
+parser.set("postgres", "host", os.environ.get("POSTGRES_HOST"))
+parser.set("postgres", "port", os.environ.get("POSTGRES_PORT"))
+parser.set("postgres", "database", os.environ.get("POSTGRES_DATABASE"))
+parser.set("postgres", "username", os.environ.get("POSTGRES_USERNAME"))
+parser.set("postgres", "password", os.environ.get("POSTGRES_PASSWORD"))
 sys.path.append(parser.get('sys-path', 'proximities'))
 sys.path.append(parser.get('sys-path', 'controllers'))
 

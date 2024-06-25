@@ -32,9 +32,10 @@ t_geometry_columns = Table(
 
 
 class Hpms2016MajorRoad(Base):
-    __tablename__ = 'hpms2016_major_roads'
+    __tablename__ = 'hpms_major_roads_2016'
 
     gid = Column(Integer, primary_key=True)
+    release_year = Column(Integer)
     route_id = Column(String)
     through_lanes = Column(Integer)
     lane_width = Column(Integer)
